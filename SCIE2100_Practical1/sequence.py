@@ -19,11 +19,9 @@ Incorporates methods for loading and saving files relevant to the above (e.g. FA
 and methods for retrieving relevant data from web services 
 """
 
-import string, sys, re, math, os, array
-import numpy
-from webservice import *
-from sym import *
 from prob import *
+from webservice import *
+
 
 # Sequence ------------------
 
@@ -31,15 +29,15 @@ class Sequence(object):
     """ A biological sequence. Stores the sequence itself (as a compact array), 
     the alphabet (i.e., type of sequence it is), and optionally a name and further 
     information. """
-    
-    sequence = None # The array of symbols that make up the sequence 
-    alphabet = None # The alphabet from which symbols come
-    name =     None # The name (identifier) of a sequence
-    info =     None # Other information (free text; e.g. annotations)
-    length =   None # The number of symbols that the sequence is composed of
-    gappy =    None # True if the sequence has "gaps", i.e. positions that represent deletions relative another sequence
-    
-    def __init__(self, sequence, alphabet = None, name = '', info = '', gappy = False):
+
+    sequence = None  # The array of symbols that make up the sequence
+    alphabet = None  # The alphabet from which symbols come
+    name = None  # The name (identifier) of a sequence
+    info = None  # Other information (free text; e.g. annotations)
+    length = None  # The number of symbols that the sequence is composed of
+    gappy = None  # True if the sequence has "gaps", i.e. positions that represent deletions relative another sequence
+
+    def __init__(self, sequence, alphabet=None, name='', info='', gappy=False):
         """ Create a sequence with the sequence data. Specifying the alphabet,
         name and other information about the sequence are all optional.
         The sequence data is immutable (stored as a string).
@@ -51,9 +49,9 @@ class Sequence(object):
         will output the standard protein alphabet:
         ['A', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'K', 'L', 'M', 'N', 'P', 'Q',
         'R', 'S', 'T', 'V', 'W', 'Y'] """
-        
+
         self.sequence = sequence
-        
+
         # Assign an alphabet
         # If no alphabet is provided, attempts to identify the alphabet from sequence
         self.alphabet = None
@@ -67,7 +65,7 @@ class Sequence(object):
                 alpha = predefAlphabets[alphaName]
                 valid = True
                 for sym in self.sequence:
-                    if not sym in alpha and (sym != '-' or not gappy):  
+                    if not sym in alpha and (sym != '-' or not gappy):
                         valid = False
                         break
                 if valid:
@@ -75,13 +73,13 @@ class Sequence(object):
                     break
             if self.alphabet is None:
                 raise RuntimeError('Could not identify alphabet from sequence: %s' % name)
-        
+
         # Store other information
         self.name = name
         self.info = info
         self.length = len(self.sequence)
         self.gappy = gappy
-        
+
     def __len__(self):
         """ Defines what the "len" operator returns for an instance of Sequence, e.g.
         >>> seq = Sequence('ACGGTAGGA', DNA_Alphabet)
@@ -96,17 +94,17 @@ class Sequence(object):
         for sym in self:
             str += sym
         return str
-    
+
     def __iter__(self):
         """ Defines how a Sequence should be "iterated", i.e. what its elements are, e.g.
         >>> seq = Sequence('AGGAT', DNA_Alphabet)
         >>> for sym in seq:
                 print (sym)
         will print A, G, G, A, T (each on a separate row)
-        """ 
+        """
         tsyms = tuple(self.sequence)
         return tsyms.__iter__()
-    
+
     def __contains__(self, item):
         """ Defines what is returned when the "in" operator is used on a Sequence, e.g.
         >>> seq = Sequence('ACGGTAGGA', DNA_Alphabet)
@@ -117,12 +115,12 @@ class Sequence(object):
         True
         >>> print ('X' in seq)
         False
-        """ 
+        """
         for sym in self.sequence:
             if sym == item:
                 return True
         return False
-        
+
     def __getitem__(self, ndx):
         """ Retrieve a specified index (or a "slice" of indices) of the sequence data.
             Calling self.__getitem__(3) is equivalent to self[3] 
@@ -131,21 +129,21 @@ class Sequence(object):
             return ''.join(self.sequence[ndx])
         else:
             return self.sequence[ndx]
-        
+
     def writeFasta(self):
         """ Write one sequence in FASTA format to a string and return it. """
         fasta = '>' + self.name + ' ' + self.info + '\n'
         data = ''.join(self.sequence)
         nlines = int(math.ceil((len(self.sequence) - 1) / 60 + 1))
         for i in range(nlines):
-            lineofseq = ''.join(data[i*60 : (i+1)*60]) + '\n'
+            lineofseq = ''.join(data[i * 60: (i + 1) * 60]) + '\n'
             fasta += lineofseq
         return fasta
-    
-    def count(self, findme = None):
+
+    def count(self, findme=None):
         """ Get the number of occurrences of specified symbol findme OR
             if findme = None, return a dictionary of counts of all symbols in alphabet """
-        if findme != None:
+        if findme is not None:
             cnt = 0
             for sym in self.sequence:
                 if findme == sym:
@@ -161,29 +159,32 @@ class Sequence(object):
         """ Find the position of the specified symbol or sub-sequence """
         return ''.join(self.sequence).find(findme)
 
+
 """
 Below are some useful methods for loading data from strings and files.
 Recognize the FASTA format (nothing fancy). 
 """
-def readFasta(string, alphabet = None):
+
+
+def readFasta(string, alphabet=None):
     """ Read the given string as FASTA formatted data and return the list of
     sequences contained within it. """
-    seqlist = []    # list of sequences contained in the string 
+    seqlist = []  # list of sequences contained in the string
     seqname = None  # name of *current* sequence 
     seqinfo = None
-    seqdata = []    # sequence data for *current* sequence
-    for line in string.splitlines():    # read every line
-        if len(line) == 0:              # ignore empty lines
+    seqdata = []  # sequence data for *current* sequence
+    for line in string.splitlines():  # read every line
+        if len(line) == 0:  # ignore empty lines
             continue
         if line[0] == '>':  # start of new sequence            
-            if seqname:     # check if we've got one current (seqname != None)
+            if seqname:  # check if we've got one current (seqname != None)
                 try:
                     current = Sequence(seqdata, alphabet, seqname, seqinfo)
                     seqlist.append(current)
                 except RuntimeError as errmsg:
                     print("Error for sequence %s: %s" % (seqname, errmsg))
             # now collect data about the new sequence
-            seqinfo = line[1:].split() # skip first char (don't care about '>')
+            seqinfo = line[1:].split()  # skip first char (don't care about '>')
             if len(seqinfo) > 0:
                 parsed = parseDefline(seqinfo[0])
                 seqname = parsed[0]
@@ -192,7 +193,7 @@ def readFasta(string, alphabet = None):
                 seqname = ''
                 seqinfo = ''
             seqdata = []
-        else:               # we assume this is (more) data for current
+        else:  # we assume this is (more) data for current
             cleanline = line.split()
             for thisline in cleanline:
                 seqdata.extend(tuple(thisline.strip('*')))
@@ -205,6 +206,7 @@ def readFasta(string, alphabet = None):
             print("Error for sequence %s: %s" % (seqname, errmsg))
     return seqlist
 
+
 def parseDefline(string):
     """ Parse the FASTA defline (see http://en.wikipedia.org/wiki/FASTA_format)
         GenBank, EMBL, etc                gi|gi-number|gb|accession|locus
@@ -215,22 +217,32 @@ def parseDefline(string):
         [1] secondary search key, e.g. UniProt name, Genbank accession 
         [2] source, e.g. 'sp' (SwissProt/UniProt), 'tr' (TrEMBL), 'gb' (Genbank)
     """
-    if len(string) == 0: return ('', '', '', '')
+    if len(string) == 0: return '', '', '', ''
     s = string.split()[0]
-    if re.match("sp\|[A-Z][A-Z0-9]{5}\|\S+", s):            arg = s.split('|');  return (arg[1], arg[2], arg[0], '')
-    elif re.match("tr\|[A-Z][A-Z0-9]{5}\|\S+", s):          arg = s.split('|');  return (arg[1], arg[2], arg[0], '')
-    elif re.match("gi\|[0-9]*\|gb|emb|dbj\|\S+\|\S+", s):   arg = s.split('|');  return (arg[1], arg[3], arg[2], arg[4])
-    elif re.match("refseq\|\S+\|\S+", s):                   arg = s.split('|');  return (arg[1], arg[2], arg[0], '')
-    else: return (s, '', '', '')
+    if re.match("sp\|[A-Z][A-Z0-9]{5}\|\S+", s):
+        arg = s.split('|');
+        return arg[1], arg[2], arg[0], ''
+    elif re.match("tr\|[A-Z][A-Z0-9]{5}\|\S+", s):
+        arg = s.split('|');
+        return arg[1], arg[2], arg[0], ''
+    elif re.match("gi\|[0-9]*\|gb|emb|dbj\|\S+\|\S+", s):
+        arg = s.split('|');
+        return arg[1], arg[3], arg[2], arg[4]
+    elif re.match("refseq\|\S+\|\S+", s):
+        arg = s.split('|');
+        return arg[1], arg[2], arg[0], ''
+    else:
+        return s, '', '', ''
 
-def readFastaFile(filename, alphabet = None):
+
+def readFastaFile(filename, alphabet=None):
     """ Read the given FASTA formatted file and return the list of sequences 
     contained within it. Note that if no alphabet is specified, it will take a 
     separate guess for each sequence. """
     fh = open(filename)
     seqlist = []
-    batch = '' # a batch of rows including one or more complete FASTA entries
-    rowcnt = 0 
+    batch = ''  # a batch of rows including one or more complete FASTA entries
+    rowcnt = 0
     for row in fh:
         row = row.strip()
         if len(row) > 0:
@@ -249,14 +261,16 @@ def readFastaFile(filename, alphabet = None):
     fh.close()
     return seqlist
 
+
 def writeFastaFile(filename, seqs):
     """ Write the specified sequences to a FASTA file. """
     fh = open(filename, 'w')
     for seq in seqs:
         fh.write(seq.writeFasta())
     fh.close()
-    
-def getMarkov(seqs, order = 0):
+
+
+def getMarkov(seqs, order=0):
     """ Retrieve the Markov stats for a set of sequences. """
     myseqs = seqs
     if seqs is Sequence:
@@ -275,20 +289,22 @@ def getMarkov(seqs, order = 0):
             jp.observe(sub)
     return jp
 
-def getCount(seqs, findme = None):
-    if findme != None:
+
+def getCount(seqs, findme=None):
+    if findme is not None:
         cnt = 0
         for seq in seqs:
             cnt += seq.count(findme)
         return cnt
-    else: 
+    else:
         if len(seqs) > 0:
             alpha = seqs[0].alphabet
             patcnt = {}
             for a in alpha:
                 patcnt[a] = getCount(seqs, a)
         return patcnt
-    
+
+
 # Alignment ------------------
 
 class Alignment():
@@ -299,11 +315,11 @@ class Alignment():
     >>> print (Alignment(seqs))
      THIS-LI-NE-
      --ISALIGNED """
-    
+
     alignlen = None
     seqs = None
     alphabet = None
-    
+
     def __init__(self, seqs):
         self.alignlen = -1
         self.seqs = seqs
@@ -322,30 +338,30 @@ class Alignment():
         for seq in self.seqs:
             namelen = max(len(seq.name), namelen)
         return namelen
-    
-    def __str__(self):    
+
+    def __str__(self):
         string = ''
         namelen = self.getnamelen()
         for seq in self.seqs:
-            string += seq.name.ljust(namelen+1)
+            string += seq.name.ljust(namelen + 1)
             for sym in seq:
                 string += sym
             string += '\n'
         return string
 
-    def writeClustal(self, filename = None):
+    def writeClustal(self, filename=None):
         """ Write the alignment to a string or file using the Clustal file format. """
         symbolsPerLine = 60
-        maxNameLength =  self.getnamelen() + 1
+        maxNameLength = self.getnamelen() + 1
         string = ''
         wholeRows = self.alignlen / symbolsPerLine
         for i in range(wholeRows):
             for j in range(len(self.seqs)):
                 string += self.seqs[j].name.ljust(maxNameLength) + ' '
-                string += self.seqs[j][i*symbolsPerLine:(i+1)*symbolsPerLine] + '\n'
+                string += self.seqs[j][i * symbolsPerLine:(i + 1) * symbolsPerLine] + '\n'
             string += '\n'
         # Possible last row
-        lastRowLength = self.alignlen - wholeRows*symbolsPerLine
+        lastRowLength = self.alignlen - wholeRows * symbolsPerLine
         if lastRowLength > 0:
             for j in range(len(self.seqs)):
                 if maxNameLength > 0:
@@ -353,40 +369,41 @@ class Alignment():
                 string += self.seqs[j][-lastRowLength:] + '\n'
         if filename != None:
             fh = open(filename, 'w')
-            fh.write('CLUSTAL W (1.83) multiple sequence alignment\n\n\n') # fake header so that clustal believes it
+            fh.write('CLUSTAL W (1.83) multiple sequence alignment\n\n\n')  # fake header so that clustal believes it
             fh.write(string)
             fh.close()
         return string
-    
-    def getProfile(self, pseudo = 0.0):
+
+    def getProfile(self, pseudo=0.0):
         """ Determine the probability matrix from the alignment, assuming
         that each position is independent of all others. """
         p = IndepJoint([self.alphabet for _ in range(self.alignlen)], pseudo)
         for seq in self.seqs:
             p.observe(seq)
-        return p 
-        
+        return p
+
     def calcBackground(self):
         """ Count the proportion of each amino acid's occurrence in the
             alignment, and return as a probability distribution. """
         p = Distrib(self.alphabet)
         for seq in self.alignments:
             for sym in seq:
-                if sym in self.alphabet: # ignore "gaps"
+                if sym in self.alphabet:  # ignore "gaps"
                     p.observe(sym)
         return p
-    
-    def writeHTML(self, filename = None):
+
+    def writeHTML(self, filename=None):
         """ Generate HTML that displays the alignment in color.
             Requires that the alphabet is annotated with the label 'html-color' (see Sequence.annotateSym)
             and that each symbol maps to a text string naming the color, e.g. 'blue'
         """
-        html = '''<html><head><meta content="text/html; charset=ISO-8859-1" http-equiv="Content-Type">\n<title>Sequence Alignment</title>\n</head><body><pre>\n'''
-        maxNameLength =  self.getnamelen()
+        html = '''<html><head><meta content="text/html; charset=ISO-8859-1" 
+        http-equiv="Content-Type">\n<title>Sequence Alignment</title>\n</head><body><pre>\n '''
+        maxNameLength = self.getnamelen()
         html += ''.ljust(maxNameLength) + ' '
         for i in range(self.alignlen - 1):
-            if (i+1) % 10 == 0:
-                html += str(i/10+1)[0]
+            if (i + 1) % 10 == 0:
+                html += str(i / 10 + 1)[0]
             else:
                 html += ' '
         html += '%s\n' % (self.alignlen)
@@ -394,9 +411,10 @@ class Alignment():
         if self.alignlen > 10:
             html += ''.ljust(maxNameLength) + ' '
             for i in range(self.alignlen - 1):
-                if (i+1) % 10 == 0:
-                    index = len(str(i/10 + 1).split('.')[0])
-                    html += str(i / 10 + 1).split('.')[0][(index * -1) + 1 ] if (len(str(i / 10 + 1).split('.')[0]) > 1) else '0'
+                if (i + 1) % 10 == 0:
+                    index = len(str(i / 10 + 1).split('.')[0])
+                    html += str(i / 10 + 1).split('.')[0][(index * -1) + 1] if (
+                            len(str(i / 10 + 1).split('.')[0]) > 1) else '0'
                 else:
                     html += ' '
             html += '\n'
@@ -404,9 +422,9 @@ class Alignment():
         if self.alignlen > 100:
             html += ''.ljust(maxNameLength) + ' '
             for i in range(self.alignlen - 1):
-                if (i+1) % 10 == 0 and i >= 99:
-                    index = len(str(i/10 + 1).split('.')[0])
-                    html += str(i / 10 + 1).split('.')[0][-1] if (len(str(i / 10 + 1).split('.')[0]) >2) else '0'
+                if (i + 1) % 10 == 0 and i >= 99:
+                    index = len(str(i / 10 + 1).split('.')[0])
+                    html += str(i / 10 + 1).split('.')[0][-1] if (len(str(i / 10 + 1).split('.')[0]) > 2) else '0'
 
                 else:
                     html += ' '
@@ -415,7 +433,7 @@ class Alignment():
         if self.alignlen > 1000:
             html += ''.ljust(maxNameLength) + ' '
             for i in range(self.alignlen - 1):
-                if (i+1) % 10 == 0:
+                if (i + 1) % 10 == 0:
                     html += '0' if (len(str(i / 10 + 1).split('.')[0]) > 2) else ' '
 
                 else:
@@ -436,13 +454,14 @@ class Alignment():
             fh.close()
         return html
 
+
 def readClustal(string, alphabet):
     """ Read a ClustalW2 alignment in the given string and return as an
     Alignment object. """
-    seqs = {} # sequence data
+    seqs = {}  # sequence data
     for line in string.splitlines():
         if line.startswith('CLUSTAL') or line.startswith('STOCKHOLM') \
-           or line.startswith('#'):
+                or line.startswith('#'):
             continue
         if len(line.strip()) == 0:
             continue
@@ -456,8 +475,9 @@ def readClustal(string, alphabet):
             seqs[name] = seqstr
     sequences = []
     for name, seqstr in list(seqs.items()):
-        sequences.append(Sequence(seqstr, alphabet, name, gappy = True))
+        sequences.append(Sequence(seqstr, alphabet, name, gappy=True))
     return Alignment(sequences)
+
 
 def readClustalFile(filename, alphabet):
     """ Read a ClustalW2 alignment file and return an Alignment object
@@ -468,10 +488,11 @@ def readClustalFile(filename, alphabet):
     aln = readClustal(data, alphabet)
     return aln
 
+
 # Substitution Matrix ------------------
 
 class SubstMatrix():
-    
+
     def __init__(self, alphabet):
         self.scoremat = {}  # set as an empty dictionary to be filled by set function
         self.alphabet = alphabet
@@ -482,21 +503,21 @@ class SubstMatrix():
             return tuple([sym1, sym2])
         else:
             return tuple([sym2, sym1])
-        
+
     def set(self, sym1, sym2, score):
         """ Add a score to the substitution matrix """
         self.scoremat[self._getkey(sym1, sym2)] = score
-        
+
     def get(self, sym1, sym2):
         return self.scoremat[self._getkey(sym1, sym2)]
-        
+
     def __str__(self):
-        symbols = self.alphabet.symbols # what symbols are in the alphabet
+        symbols = self.alphabet.symbols  # what symbols are in the alphabet
         i = len(symbols)
         string = ''
         for a in symbols:
             string += a + ' '
-            for b in symbols[:len(symbols)-i+1]:
+            for b in symbols[:len(symbols) - i + 1]:
                 score = self.scoremat[self._getkey(a, b)]
                 if score != None:
                     string += str(score).rjust(3) + ' '
@@ -535,7 +556,7 @@ def readSubstMatrix(filename, alphabet):
 
 # Web Service Functions -------------------
 
-def getSequence(id, database = 'uniprotkb', start=None, end=None):
+def getSequence(id, database='uniprotkb', start=None, end=None):
     """ Get the sequence identified by the given ID from the given database
     (e.g. 'uniprotkb', 'refseqn' or 'refseqp'), and return it as a Sequence
     object. An error is caused if the sequence ID is not found. If start and
@@ -557,13 +578,16 @@ def getSequence(id, database = 'uniprotkb', start=None, end=None):
     try:
         return Sequence(seq[start:end], seq.alphabet, seq.name, seq.info)
     except:
-        raise RuntimeError('An error occurred while retrieving the specified sequence: %s (maybe the ID doesn\'t exist)' % id)
+        raise RuntimeError(
+            'An error occurred while retrieving the specified sequence: %s (maybe the ID doesn\'t exist)' % id)
+
 
 def searchSequences(query, database='uniprot'):
     """ Search for sequences matching the given query in the given database
     (must be 'uniprot'), and return a list of sequence IDs. """
-    ids = search(query, limit = None)
+    ids = search(query, limit=None)
     return ids
+
 
 def runClustal(sequences, method='slow'):
     """ Run a ClustalOmega alignment of the given list of Sequence objects.
@@ -583,6 +607,7 @@ def runClustal(sequences, method='slow'):
     alignment = readClustal(result, alpha)
     return alignment
 
+
 def createTree(alignment, type):
     """ Run a ClustalW 2 phylogeny tree creation of either a 'Neighbour-joining'
     or 'UPGMA' type tree from the given multiple sequence Alignment object. """
@@ -596,6 +621,7 @@ def createTree(alignment, type):
     service = EBI(serviceName)
     tree = service.submit(params, resultType)
     return tree
+
 
 def runBLAST(sequence, program='blastp', database='uniprotkb', exp='1e-1'):
     """ Run a BLAST search of nucleotide mouse databases using the given
@@ -614,14 +640,14 @@ def runBLAST(sequence, program='blastp', database='uniprotkb', exp='1e-1'):
     else:
         stype = 'protein'
     serviceName = 'ncbiblast'
-    resultTypes = ['ids', 'out'] # request 
+    resultTypes = ['ids', 'out']  # request
     fastaSeq = sequence.writeFasta()
     databases = [database]
     params = {'program': program, 'database': databases, 'sequence': fastaSeq,
               'stype': stype, 'exp': exp}
     service = EBI(serviceName)
     idsData, output = service.submit(params, resultTypes)
-    ids=[]
+    ids = []
     for id in idsData.splitlines():
         if len(id) > 0:
             ids.append(id.split(':')[1])

@@ -1,9 +1,8 @@
 """
-Module symbol is for defining alphabets (of symbols), and
-for storing and operating on symbols and tuples (ordered or
-unordered).
+Module symbol is for defining alphabets (of symbols),
+and for storing and operating on symbols and tuples (ordered or unordered).
 """
-import os
+
 
 # ------------------ Alphabet ------------------
 
@@ -24,13 +23,13 @@ class Alphabet(object):
         ('A', 'C', 'G', 'T') """
 
         # Add each symbol to the symbols list, one at a time, and ignore doubles (could use "set" here...)
-        _symbols = [] # create a temporary list
+        _symbols = []  # create a temporary list
         for s in symbolString:
             if not str(s).upper()[0] in _symbols:
                 _symbols.append(str(s).upper()[0])
-        _symbols.sort() # we put them in alphabetical (one canonical) order
+        _symbols.sort()  # we put them in alphabetical (one canonical) order
         # OK done extracting, put them in place
-        self.symbols = tuple(_symbols); # create the immutable tuple from the extracted list
+        self.symbols = tuple(_symbols)  # create the immutable tuple from the extracted list
         self.length = len(self.symbols)
         self.annotations = {}
 
@@ -62,7 +61,7 @@ class Alphabet(object):
 
     def __eq__(self, rhs):
         """ Test if the rhs alphabet is equal to ours. """
-        if rhs == None:
+        if rhs is None:
             return False
         if len(rhs) != len(self):
             return False
@@ -91,7 +90,7 @@ class Alphabet(object):
         lookup[sym] = value
 
     def annotateAll(self, label, symdictOrFilename):
-        if isinstance(symdictOrFilename, str): # we assume it is a filename
+        if isinstance(symdictOrFilename, str):  # we assume it is a filename
             fh = open(symdictOrFilename)
             string = fh.read()
             d = {}
@@ -103,7 +102,7 @@ class Alphabet(object):
                 for sym in symstr:
                     d[sym] = value
             fh.close()
-        else: # we assume it is a dictionary
+        else:  # we assume it is a dictionary
             d = symdictOrFilename
         for sym in d:
             self.annotateSym(label, sym, d[sym])
@@ -126,7 +125,7 @@ RNA_Alphabet = Alphabet('ACGU')
 Protein_Alphabet = Alphabet('ACDEFGHIKLMNPQRSTVWY')
 Protein_Alphabet_wX = Protein_wX = Alphabet('ACDEFGHIKLMNPQRSTVWYX')
 Protein_Alphabet_wSTOP = Protein_wSTOP = Alphabet('ACDEFGHIKLMNPQRSTVWY*')
-Protein_wGAP  = Alphabet('ACDEFGHIKLMNPQRSTVWY-')
+Protein_wGAP = Alphabet('ACDEFGHIKLMNPQRSTVWY-')
 DSSP_Alphabet = Alphabet('GHITEBSC')
 DSSP3_Alphabet = Alphabet('HEC')
 
@@ -137,29 +136,29 @@ predefAlphabets = {'Bool_Alphabet': Bool_Alphabet,
                    'RNAwN': DNA_Alphabet_wN,
                    'Protein': Protein_Alphabet,
                    'ProteinwX': Protein_wX,
-                   'ProteinwSTOP' : Protein_wSTOP,
+                   'ProteinwSTOP': Protein_wSTOP,
                    'ProteinwGAP': Protein_wGAP,
-                   'DSSP_Alphabet' : DSSP_Alphabet,
-                   'DSSP3_Alphabet' : DSSP3_Alphabet}
+                   'DSSP_Alphabet': DSSP_Alphabet,
+                   'DSSP3_Alphabet': DSSP3_Alphabet}
 # The preferred order in which a predefined alphabet is assigned to a sequence
 # (e.g., we'd want to assign DNA to 'AGCT', even though Protein is also valid)
 preferredOrder = ['Bool_Alphabet', 'DNA', 'RNA', 'DNAwN', 'RNAwN', 'Protein', 'ProteinwX', 'ProteinwSTOP',
                   'ProteinwGAP', 'DSSP_Alphabet', 'DSSP3_Alphabet']
 # Useful annotations
-DNA_Alphabet.annotateAll('html-color', {'A':'green','C':'orange','G':'red','T':'#66bbff'})
-RNA_Alphabet.annotateAll('html-color', {'A':'green','C':'orange','G':'red','U':'#66bbff'})
+DNA_Alphabet.annotateAll('html-color', {'A': 'green', 'C': 'orange', 'G': 'red', 'T': '#66bbff'})
+RNA_Alphabet.annotateAll('html-color', {'A': 'green', 'C': 'orange', 'G': 'red', 'U': '#66bbff'})
 
-Protein_Alphabet.annotateAll('html-color', {'G':'white', 'C': 'white', 'P':'white','S':'white','T': 'white','H':'white',
-                                            'K':'white','R':'white','F':'blue','Y':'blue','W':'blue','I':'blue',
-                                            'L':'blue','M':'blue', 'N': 'white', 'Q': 'white', 'V':'blue',
-                                            'A' : 'white', 'D': 'white', 'E': 'white'})
+Protein_Alphabet.annotateAll('html-color',
+                             {'G': 'white', 'C': 'white', 'P': 'white', 'S': 'white', 'T': 'white', 'H': 'white',
+                              'K': 'white', 'R': 'white', 'F': 'blue', 'Y': 'blue', 'W': 'blue', 'I': 'blue',
+                              'L': 'blue', 'M': 'blue', 'N': 'white', 'Q': 'white', 'V': 'blue',
+                              'A': 'white', 'D': 'white', 'E': 'white'})
 
 
 # ------------------ Substitution Matrix ------------------
 
 class TupleStore(dict):
-    """ Internal utility class that can be used for associating
-    a value with ordered n-tuples (n=1..N).
+    """ Internal utility class that can be used for associating a value with ordered n-tuples (n=1..N).
     Read/write functions are defined for instances of this class.
     """
 
@@ -178,19 +177,19 @@ class TupleStore(dict):
         """
         assert sparse, "Currently only sparse encoding is implemented."
         assert alphas or entries, "Either alphabets or entries (from which alphabets can be inferred) must be supplied."
-        self.sparse = sparse         # sparse encoding if true
-        if alphas == None:
-            self.alphas = None       # need to figure out alphabet from supplied entries
-            self.keylen = None       # tuple length not known yet
+        self.sparse = sparse  # sparse encoding if true
+        if alphas is None:
+            self.alphas = None  # need to figure out alphabet from supplied entries
+            self.keylen = None  # tuple length not known yet
         elif type(alphas) is Alphabet:
-            self.alphas = tuple ([ alphas ]) # make it into a tuple
-            self.keylen = 1          # tuple length 1
+            self.alphas = tuple([alphas])  # make it into a tuple
+            self.keylen = 1  # tuple length 1
         else:
-            self.alphas = alphas     # alphabets are supplied
-            self.keylen = len(alphas)# length of tuples is the same as the number alphabets
+            self.alphas = alphas  # alphabets are supplied
+            self.keylen = len(alphas)  # length of tuples is the same as the number alphabets
 
         # Check if entries are supplied to the constructor
-        if entries == None:
+        if entries is None:
             self.entries = entries = {}
         elif type(entries) is dict:
             raise RuntimeError("When specified, entries must be a dictionary")
@@ -202,18 +201,18 @@ class TupleStore(dict):
                 raise RuntimeError("All entries must have the same number of symbols")
 
         # go through each position in tuples, to check what alphabet is right
-        myalphas = []                   # my suggestions from entries (need to be subsets of specified)
+        myalphas = []  # my suggestions from entries (need to be subsets of specified)
         for idx in range(self.keylen):
-            symset = set()              # we collect all symbols in position idx here
+            symset = set()  # we collect all symbols in position idx here
             for key in entries:
                 symset.add(key[idx])
             myalpha = Alphabet(symset)
             myalphas.append(myalpha)
-            if self.alphas != None:     # if specified it needs to be a superset of that we constructed
+            if self.alphas != None:  # if specified it needs to be a superset of that we constructed
                 if not self.alphas[idx].isSupersetOf(myalpha):
                     raise RuntimeError("Specified alphabet is not compatible with specified entries")
 
-        if self.alphas == None:     # if not specified to constructor use those we found
+        if self.alphas == None:  # if not specified to constructor use those we found
             self.alphas = tuple(myalphas)
 
         for key in entries:
@@ -273,7 +272,7 @@ class TupleStore(dict):
     def __iter__(self):
         return TupleEntries(self, tuple([None for _ in range(self.keylen)]))
 
-    def items(self, sort = False):
+    def items(self, sort=False):
         """ In a dictionary-like way return all entries as a list of 2-tuples (key, prob).
         If sort is True, entries are sorted in descending order of value.
         Note that this function should NOT be used for big (>5 variables) tables."""
@@ -285,9 +284,11 @@ class TupleStore(dict):
             return sorted(ret, key=lambda v: v[1], reverse=True)
         return ret
 
+
 class TupleEntries(object):
     """ Iterator class for multiple entries in a tuple store.
     """
+
     def __init__(self, tuplestore, symkey):
         self.tuplestore = tuplestore
         self.symkey = symkey
@@ -296,9 +297,9 @@ class TupleEntries(object):
         for ndx in range(tuplestore.keylen):
             if symkey[ndx] == None:
                 self.indices.append(ndx)
-                self.symcount.append(0)        # start at this index to alter symbol
+                self.symcount.append(0)  # start at this index to alter symbol
             else:
-                self.symcount.append(None)     # do not alter this symbol
+                self.symcount.append(None)  # do not alter this symbol
         self.nextIsLast = False
 
     def __iter__(self):
@@ -312,7 +313,7 @@ class TupleEntries(object):
         if self.nextIsLast:
             raise StopIteration
 
-        mykey = [] # construct current combination from known and unspecified symbols
+        mykey = []  # construct current combination from known and unspecified symbols
         for ndx in range(self.tuplestore.keylen):
             if (self.symkey[ndx] == None):
                 sym = self.tuplestore.alphas[ndx][self.symcount[ndx]]
@@ -321,14 +322,14 @@ class TupleEntries(object):
                 mykey.append(self.symkey[ndx])
 
         # decide which ndx that should be increased (only one)
-        self.nextIsLast = True # assume this is the last round (all counters are re-set)
+        self.nextIsLast = True  # assume this is the last round (all counters are re-set)
         for ndx in self.indices:
-            if self.symcount[ndx] == len(self.tuplestore.alphas[ndx]) - 1: # if we just entered the last symbol of this alphabet
-                self.symcount[ndx] = 0                  # reset count here
+            if self.symcount[ndx] == len(
+                    self.tuplestore.alphas[ndx]) - 1:  # if we just entered the last symbol of this alphabet
+                self.symcount[ndx] = 0  # reset count here
             else:
                 self.symcount[ndx] = self.symcount[ndx] + 1
                 self.nextIsLast = False
                 break
 
         return tuple(mykey)
-

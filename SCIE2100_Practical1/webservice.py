@@ -1,12 +1,13 @@
-import urllib.request
-import urllib.parse
-import os
-from time import sleep
-import stats
-from io import StringIO
 import gzip
-import ssl
 import json
+import os
+import ssl
+import urllib.parse
+import urllib.request
+from io import StringIO
+from time import sleep
+
+import stats
 
 """ This module is collection of functions for accessing the EBI REST web services,
     including sequence retrieval, searching, gene ontology, BLAST and ClustalW.
@@ -25,11 +26,12 @@ __ebiSearchUrl__ = 'http://www.ebi.ac.uk/ebisearch/'
 
 def fetch(entryId, dbName='uniprotkb', format='fasta'):
     """
-    Retrieve a single entry from a database
-    entryId: ID for entry e.g. 'P63166' or 'SUMO1_MOUSE' (database dependent; examples for uniprotkb)
-    dbName: name of database e.g. 'uniprotkb' or 'pdb' or 'refseqn'; see http://www.ebi.ac.uk/Tools/dbfetch/dbfetch/dbfetch.databases for available databases
-    format: file format specific to database e.g. 'fasta' or 'uniprot' for uniprotkb (see http://www.ebi.ac.uk/Tools/dbfetch/dbfetch/dbfetch.databases)
-    See http://www.ebi.ac.uk/Tools/dbfetch/syntax.jsp for more info re URL syntax
+    Retrieve a single entry from a database entryId: ID for entry e.g. 'P63166' or 'SUMO1_MOUSE' (database dependent;
+    examples for uniprotkb) dbName: name of database e.g. 'uniprotkb' or 'pdb' or 'refseqn'; see
+    http://www.ebi.ac.uk/Tools/dbfetch/dbfetch/dbfetch.databases for available databases format: file format specific
+    to database e.g. 'fasta' or 'uniprot' for uniprotkb (see
+    http://www.ebi.ac.uk/Tools/dbfetch/dbfetch/dbfetch.databases) See http://www.ebi.ac.uk/Tools/dbfetch/syntax.jsp
+    for more info re URL syntax
 
     http://www.ebi.ac.uk/Tools/dbfetch/dbfetch?db=uniprotkb&id=P63166&format=fasta&style=raw&Retrieve=Retrieve
     """
@@ -57,7 +59,7 @@ def search(query, dbName='uniprot', format='list', limit=100, columns=""):
     """
     if dbName.startswith('uniprot'):
         # Construct URL
-        if limit == None:  # no limit to number of results returned
+        if limit is None:  # no limit to number of results returned
             url = "{}{}/?format={}&query={}&columns={}".format(__uniprotUrl__, dbName, format,
                                                                urllib.parse.quote(query),
                                                                columns)
@@ -80,13 +82,12 @@ def search(query, dbName='uniprot', format='list', limit=100, columns=""):
         if len(dbs) > 1:
             dbName = dbs[1]
 
-
         base = 'http://eutils.ncbi.nlm.nih.gov/entrez/eutils/'
 
         url = base + "esearch.fcgi?db={}&term={}+AND+srcdb_refseq[" \
-              "prop]&retmax={}".format(dbName, urllib.parse.quote(query), str(limit))
+                     "prop]&retmax={}".format(dbName, urllib.parse.quote(query), str(limit))
 
-        print (url)
+        print(url)
 
         # Get the entries
         try:
@@ -372,7 +373,7 @@ class EBI(object):
             raise RuntimeError("""You currently have a %s job running. You must
                                   wait until it is complete before submitting another job. Go to
                                   %sstatus/%s to check the status of the job.""" % (
-            self.service, self.__ebiServiceUrl__, self.jobId))
+                self.service, self.__ebiServiceUrl__, self.jobId))
         url = self.__ebiServiceUrl__ + self.service + '/run/'
         # ncbiblast database parameter needs special handling
         if self.service == 'ncbiblast':
