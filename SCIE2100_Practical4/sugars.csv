@@ -1,0 +1,15 @@
+Yeast,Maltose,Sucrose,Turanose,Maltotriose,Maltulose,Melizitose,Isomaltose,Palatinose,Me-a-Glu
+S.cerevisiae,True,True,True,True,True,True,True,True,True
+S.paradoxus,True,True,True,True,True,True,True,True,True
+S.mikatae,True,True,True,True,False,True,True,True,True
+S.kudriavzevii,True,True,True,True,True,True,True,True,True
+S.bayanus,True,True,True,True,True,True,True,True,False
+S.castelli,False,True,False,False,False,True,False,False,False
+C.glabrata,False,True,False,False,False,False,False,False,False
+K.polysporus,False,True,False,False,False,False,False,False,True
+K.thermotolerans,True,True,True,True,True,False,True,True,True
+L.waltii,True,True,True,False,True,True,False,True,True
+S.kluyverii,True,True,False,False,True,False,False,True,True
+K.lactis,True,True,True,True,True,False,False,True,True
+A.gossypii,True,False,False,False,False,False,False,False,False
+L.elongisporus,True,True,True,True,True,True,True,True,True
