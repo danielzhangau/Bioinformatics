@@ -412,14 +412,22 @@ class Alignment():
             if symcnt[mysym] > maxcnt:
                 maxcnt = symcnt[mysym]
                 consensus = mysym
+
+        # report when a column has multiple symbols with the maximum count
+        maxcnt_list = []
+        for mysym in symcnt:
+            if symcnt[mysym] == maxcnt:
+                maxcnt_list.append(mysym)
+        if len(maxcnt_list) > 1:
+            print(colidx + 1)
                 
         return consensus
 
-    # Exercise 3 - Write a `getConsensus' method to calculate the 
-    #              consensus sequence for the alignment
-    # def getConsensus(?) :
-    #   ????
-
+    def getConsensus(self):
+        seq = ""
+        for index in range(self.getSize()):
+            seq += self.getConsensusForColumn(index)
+        return seq
 
     def calcBackground(self):
         """ Count the proportion of each amino acid's occurrence in the
@@ -516,9 +524,8 @@ class Alignment():
                 p = float(D)/L
                 if measure == 'fractional':
                     dist = p
-                # Exercise 4 - add code here to calculate `poisson' distance
-                # elif ??:
-                # ???
+                if measure == 'poisson':
+                    dist = -math.log(1 - p)
                 distmat[i, j] = distmat[j, i] = dist
         return distmat
 
