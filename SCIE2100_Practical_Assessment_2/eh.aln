@@ -1,0 +1,42 @@
+CLUSTAL format alignment by MAFFT (v7.310)
+
+
+mouse-Abhd8     MTSEHTMLTGV-------------------TDGFFCCLLGTPP-----NAVRPLESVESS
+human-EPHX1     MWLE-ILLTSVLGFAIYWFISRDKEETLPLEDGWWG--PGTRSAAREDDSIRPFK-VETS
+                *  *  :**.*                    **::    ** .     :::**:: **:*
+
+mouse-Abhd8     DGYTFVEVKP--GRVLRVKHAGPAPIPTPPPPPPEDD---PGVKTGLVRCQRPITVYRNG
+human-EPHX1     DE----EIHDLHQRIDKFRFT----------PPLEDSCFHYGFNSNYLK--KVISYWRNE
+                *     *::    *: :.:.:          ** **.    *.::. ::  : *: :** 
+
+mouse-Abhd8     ---RLVVENLGRAP--RADLQGRSGSGDPPAALEVELAE------PAGGDTRANPGSGRR
+human-EPHX1     FDWKKQVEILNRYPHFKTKIEG----------LDIHFIHVKPPQLPAG------------
+                   :  ** *.* *  ::.::*          *::.: .      ***            
+
+mouse-Abhd8     RRPRRPKRTIHIDCEQRITSCKGAQADVVLFFIHGVGGSLAIWKEQLDFFVRLG------
+human-EPHX1     ---HTPKP---------------------LLMVHGWPGSFYEFYKIIPLLTDPKNHGLSD
+                   : **                      *:::**  **:  : : : ::.         
+
+mouse-Abhd8     ---YEVVAPDLAGHGASSAP------QVAAAYTFYALAEDMRAIFTRYAKKRNVLIGHSY
+human-EPHX1     EHVFEVICPSIPGYGFSEASSKKGFNSVATARIFYKL-------MLRLGFQEFYIQGGDW
+                   :**:.*.:.*:* *.*.      .**:*  ** *       : * . :.  : * .:
+
+mouse-Abhd8     GVSFCTFLAHEYPDLVH------KVIMINGGGPTAL------------EPSLCSIFNMPT
+human-EPHX1     GSLICTNMAQLVPSHVKGLHLNMALVLSNFSTLTLLLGQRFGRFLGLTERDVELLYPVKE
+                *  :** :*:  *. *:       ::: * .  * *            * .:  :: :  
+
+mouse-Abhd8     CVLHCL-----------------------SPCLAWSFLKAGFARQGAKEKQLLKEG---N
+human-EPHX1     KVFYSLMRESGYMHIQCTKPDTVGSALNDSPVGLAAYILEKFSTWTNTEFRYLEDGGLER
+                 *::.*                       **    :::   *:    .* : *::*   .
+
+mouse-Abhd8     AFNVSSFVLRAMMSGQYWPEGDEVYHAELTVPVLLVHGMHDK------FVPVEEDQRMAE
+human-EPHX1     KFSLDDLLTNVML---YWTTGTIISSQRFYKENLGQGWMTQKHERMKVYVPTGFSAFPFE
+                 *.:..:: ..*:   **. *  :   .:    *    * :*      :**.  .    *
+
+mouse-Abhd8     IL-------LLAFLKLIE-----EGSHMVMLECPETVNTLLHEFLLWEPEPEAEPKLEPK
+human-EPHX1     LLHTPEKWVRFKYPKLISYSYMVRGGHFAAFEEPELLAQDIRKFL---------------
+                :*        : : ***.     .*.*:. :* ** :   :::**               
+
+mouse-Abhd8     PKPQLLQPEPAPGEEK
+human-EPHX1     ----------SVLERQ
+                          :  *.:
